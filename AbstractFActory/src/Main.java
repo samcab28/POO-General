@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 interface ThemeFactory {
     JPanel createBackground();
     JButton createButton();
+    JLabel createLabel();
 }
 
 class LightThemeFactory implements ThemeFactory {
@@ -19,6 +20,14 @@ class LightThemeFactory implements ThemeFactory {
         JButton button = new JButton("Cambiar a Tema Oscuro");
         button.setForeground(Color.BLACK);
         return button;
+    }
+
+    public JLabel createLabel() {
+        JLabel label = new JLabel("Instagram");
+        label.setForeground(Color.BLACK); // Color del texto (letras)
+        label.setBackground(Color.WHITE); // Color de fondo
+        label.setOpaque(true);
+        return label;
     }
 }
 
@@ -34,6 +43,14 @@ class DarkThemeFactory implements ThemeFactory {
         button.setForeground(Color.WHITE);
         return button;
     }
+
+    public JLabel createLabel() {
+        JLabel label = new JLabel("Instagram");
+        label.setForeground(Color.WHITE); // Color del texto (letras)
+        label.setBackground(Color.BLACK); // Color de fondo
+        label.setOpaque(true);
+        return label;
+    }
 }
 
 class ThemeSwitcherApp {
@@ -48,7 +65,7 @@ class ThemeSwitcherApp {
     private void initialize() {
         frame = new JFrame("Cambiar Tema");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(300, 500);
+        frame.setSize(500, 200);
 
         // Centrar la ventana en la pantalla
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -59,6 +76,9 @@ class ThemeSwitcherApp {
         JPanel contentPane = new JPanel(new BorderLayout());
         JPanel backgroundPanel = themeFactory.createBackground();
         JButton themeButton = themeFactory.createButton();
+        JLabel instagramLabel = themeFactory.createLabel();
+        instagramLabel.setBounds(0, 0, 80, 30); // Establece la posición (0,0) y el tamaño (ancho 80, alto 30)
+        instagramLabel.setPreferredSize(new Dimension(80, 30)); // Establece el tamaño preferido
 
         themeButton.addActionListener(new ActionListener() {
             @Override
@@ -67,8 +87,13 @@ class ThemeSwitcherApp {
             }
         });
 
+        // Agregar el JLabel en la esquina superior derecha
+        JPanel labelContainer = new JPanel(new BorderLayout());
+        labelContainer.add(instagramLabel);
+
         contentPane.add(backgroundPanel, BorderLayout.CENTER);
         contentPane.add(themeButton, BorderLayout.SOUTH);
+        contentPane.add(labelContainer, BorderLayout.NORTH);
 
         frame.setContentPane(contentPane);
         frame.setVisible(true);

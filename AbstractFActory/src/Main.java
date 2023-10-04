@@ -7,6 +7,8 @@ interface ThemeFactory {
     JPanel createBackground();
     JButton createButton();
     JLabel createLabel();
+    JPanel createCirclePanel();
+    Font createFont();
 }
 
 class LightThemeFactory implements ThemeFactory {
@@ -24,10 +26,20 @@ class LightThemeFactory implements ThemeFactory {
 
     public JLabel createLabel() {
         JLabel label = new JLabel("Instagram");
-        label.setForeground(Color.BLACK); // Color del texto (letras)
-        label.setBackground(Color.WHITE); // Color de fondo
+        label.setFont(createFont());
+        label.setForeground(Color.BLACK);
+        label.setBackground(Color.WHITE);
         label.setOpaque(true);
         return label;
+    }
+
+    public JPanel createCirclePanel() {
+        return new CirclePanel();
+    }
+
+    public Font createFont() {
+        Font font = UIManager.getFont("Label.font"); // Obtiene la fuente predeterminada del sistema
+        return font.deriveFont(Font.PLAIN, 24f);
     }
 }
 
@@ -46,10 +58,44 @@ class DarkThemeFactory implements ThemeFactory {
 
     public JLabel createLabel() {
         JLabel label = new JLabel("Instagram");
-        label.setForeground(Color.WHITE); // Color del texto (letras)
-        label.setBackground(Color.BLACK); // Color de fondo
+        label.setFont(createFont());
+        label.setForeground(Color.WHITE);
+        label.setBackground(Color.BLACK);
         label.setOpaque(true);
         return label;
+    }
+
+    public JPanel createCirclePanel() {
+        return new CirclePanel();
+    }
+
+    public Font createFont() {
+        Font font = UIManager.getFont("Label.font"); // Obtiene la fuente predeterminada del sistema
+        return font.deriveFont(Font.PLAIN, 24f);
+    }
+}
+
+class CirclePanel extends JPanel {
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        int circleCount = 10;
+        int circleDiameter = 30;
+
+        int y = (getHeight() - circleDiameter) / 2;
+
+        for (int i = 0; i < circleCount; i++) {
+            Color color = getRandomColor();
+            g.setColor(color);
+            g.fillOval(30 + i * (circleDiameter + 5), y, circleDiameter, circleDiameter);
+        }
+    }
+
+    private Color getRandomColor() {
+        int r = (int) (Math.random() * 256);
+        int g = (int) (Math.random() * 256);
+        int b = (int) (Math.random() * 256);
+        return new Color(r, g, b);
     }
 }
 
@@ -63,11 +109,10 @@ class ThemeSwitcherApp {
     }
 
     private void initialize() {
-        frame = new JFrame("Cambiar Tema");
+        frame = new JFrame("Abstract Factory");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 200);
+        frame.setSize(500, 600);
 
-        // Centrar la ventana en la pantalla
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int xPos = (screenSize.width - frame.getWidth()) / 2;
         int yPos = (screenSize.height - frame.getHeight()) / 2;
@@ -77,8 +122,7 @@ class ThemeSwitcherApp {
         JPanel backgroundPanel = themeFactory.createBackground();
         JButton themeButton = themeFactory.createButton();
         JLabel instagramLabel = themeFactory.createLabel();
-        instagramLabel.setBounds(0, 0, 80, 30); // Establece la posición (0,0) y el tamaño (ancho 80, alto 30)
-        instagramLabel.setPreferredSize(new Dimension(80, 30)); // Establece el tamaño preferido
+        JPanel circlePanel = themeFactory.createCirclePanel();
 
         themeButton.addActionListener(new ActionListener() {
             @Override
@@ -87,9 +131,9 @@ class ThemeSwitcherApp {
             }
         });
 
-        // Agregar el JLabel en la esquina superior derecha
         JPanel labelContainer = new JPanel(new BorderLayout());
-        labelContainer.add(instagramLabel);
+        labelContainer.add(instagramLabel, BorderLayout.WEST);
+        labelContainer.add(circlePanel, BorderLayout.CENTER);
 
         contentPane.add(backgroundPanel, BorderLayout.CENTER);
         contentPane.add(themeButton, BorderLayout.SOUTH);

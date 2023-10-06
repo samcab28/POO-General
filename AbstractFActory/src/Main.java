@@ -3,14 +3,16 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+// Definir una interfaz que declare métodos para crear componentes de interfaz de usuario relacionados.
 interface ThemeFactory {
-    JPanel createBackground();
-    JButton createButton();
-    JLabel createLabel();
-    JPanel createCirclePanel();
-    Font createFont();
+    JPanel createBackground();  // Crear el panel de fondo.
+    JButton createButton();      // Crear un botón.
+    JLabel createLabel();        // Crear una etiqueta de texto.
+    JPanel createCirclePanel();  // Crear un panel circular.
+    Font createFont();           // Crear una fuente personalizada.
 }
 
+// Implementación concreta de ThemeFactory para un tema de luz.
 class LightThemeFactory implements ThemeFactory {
     public JPanel createBackground() {
         JPanel panel = new JPanel();
@@ -28,8 +30,7 @@ class LightThemeFactory implements ThemeFactory {
         JLabel label = new JLabel("Instagram");
         label.setFont(createFont());
         label.setForeground(Color.BLACK);
-        label.setBackground(Color.WHITE);
-        label.setOpaque(true);
+        label.setOpaque(false);
         return label;
     }
 
@@ -38,11 +39,12 @@ class LightThemeFactory implements ThemeFactory {
     }
 
     public Font createFont() {
-        Font font = UIManager.getFont("Label.font"); // Obtiene la fuente predeterminada del sistema
+        Font font = UIManager.getFont("Label.font");
         return font.deriveFont(Font.PLAIN, 24f);
     }
 }
 
+// Implementación concreta de ThemeFactory para un tema oscuro.
 class DarkThemeFactory implements ThemeFactory {
     public JPanel createBackground() {
         JPanel panel = new JPanel();
@@ -59,9 +61,8 @@ class DarkThemeFactory implements ThemeFactory {
     public JLabel createLabel() {
         JLabel label = new JLabel("Instagram");
         label.setFont(createFont());
-        label.setForeground(Color.WHITE);
-        label.setBackground(Color.BLACK);
-        label.setOpaque(true);
+        label.setForeground(Color.WHITE); // Cambiar el color del texto a blanco
+        label.setOpaque(false);
         return label;
     }
 
@@ -70,11 +71,12 @@ class DarkThemeFactory implements ThemeFactory {
     }
 
     public Font createFont() {
-        Font font = UIManager.getFont("Label.font"); // Obtiene la fuente predeterminada del sistema
+        Font font = UIManager.getFont("Label.font");
         return font.deriveFont(Font.PLAIN, 24f);
     }
 }
 
+// Clase que representa un panel circular personalizado.
 class CirclePanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
@@ -99,15 +101,18 @@ class CirclePanel extends JPanel {
     }
 }
 
-class ThemeSwitcherApp {
+// Clase principal que configura la interfaz de usuario.
+public class Main {
     private JFrame frame;
     private ThemeFactory themeFactory;
 
-    public ThemeSwitcherApp(ThemeFactory themeFactory) {
+    // Constructor que recibe una fábrica de temas (ThemeFactory).
+    public Main(ThemeFactory themeFactory) {
         this.themeFactory = themeFactory;
         initialize();
     }
 
+    // Configura la interfaz de usuario.
     private void initialize() {
         frame = new JFrame("Abstract Factory");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -124,6 +129,7 @@ class ThemeSwitcherApp {
         JLabel instagramLabel = themeFactory.createLabel();
         JPanel circlePanel = themeFactory.createCirclePanel();
 
+        // Agregar un ActionListener al botón para cambiar el tema.
         themeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -131,8 +137,23 @@ class ThemeSwitcherApp {
             }
         });
 
+        // Configurar un panel personalizado con un gradiente.
+        JPanel rectanglePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                GradientPaint gradient = new GradientPaint(0, 0, Color.MAGENTA, 0, getHeight(), Color.PINK);
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            };
+        };
+
         JPanel labelContainer = new JPanel(new BorderLayout());
-        labelContainer.add(instagramLabel, BorderLayout.WEST);
+        labelContainer.setOpaque(false);
+        rectanglePanel.setPreferredSize(new Dimension(200, 50));
+        rectanglePanel.add(instagramLabel);
+        labelContainer.add(rectanglePanel, BorderLayout.WEST);
         labelContainer.add(circlePanel, BorderLayout.CENTER);
 
         contentPane.add(backgroundPanel, BorderLayout.CENTER);
@@ -143,6 +164,7 @@ class ThemeSwitcherApp {
         frame.setVisible(true);
     }
 
+    // Cambiar entre temas en tiempo de ejecución.
     private void switchTheme() {
         if (themeFactory instanceof LightThemeFactory) {
             themeFactory = new DarkThemeFactory();
@@ -150,6 +172,7 @@ class ThemeSwitcherApp {
             themeFactory = new LightThemeFactory();
         }
 
+        // Eliminar todos los componentes actuales y volver a inicializar la interfaz con el nuevo tema.
         frame.getContentPane().removeAll();
         initialize();
         frame.revalidate();
@@ -159,8 +182,9 @@ class ThemeSwitcherApp {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                // Inicializar la aplicación con un tema de luz.
                 ThemeFactory initialThemeFactory = new LightThemeFactory();
-                new ThemeSwitcherApp(initialThemeFactory);
+                new Main(initialThemeFactory);
             }
         });
     }

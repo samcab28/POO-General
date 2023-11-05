@@ -33,6 +33,10 @@ public class VentanaInicio {
 
                     VentanaPrincipal ventanaPrincipal = VentanaPrincipal.obtenerInstancia();
                     ventanaPrincipal.mostrarVentana(ancho, alto);
+
+                    // Crear y mostrar la ventana de control después de crear la ventana principal
+                    VentanaControl ventanaControl = new VentanaControl();
+                    ventanaControl.setVisible(true);
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(frame, "Por favor, ingrese dimensiones válidas (números enteros).", "Error", JOptionPane.ERROR_MESSAGE);
                 }

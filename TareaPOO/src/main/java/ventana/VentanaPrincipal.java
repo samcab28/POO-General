@@ -1,14 +1,24 @@
+// VentanaPrincipal.java
 package ventana;
 
-import javax.swing.*;
+import pintor.Pintor;
 
-public class VentanaPrincipal {
+import javax.swing.*;
+import java.awt.*;
+
+public class VentanaPrincipal extends JPanel {
     private static VentanaPrincipal instancia = null;
     private JFrame ventana;
+    private Pintor pintor;
 
     private VentanaPrincipal() {
         ventana = new JFrame("Ventana Principal");
         ventana.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        ventana.add(this); // Agregamos la instancia actual como JPanel
+
+        // Establecemos un tamaño inicial para la ventana principal
+        ventana.setSize(400, 300);
+        ventana.setVisible(true);
     }
 
     public static VentanaPrincipal obtenerInstancia() {
@@ -18,8 +28,17 @@ public class VentanaPrincipal {
         return instancia;
     }
 
-    public void mostrarVentana(int ancho, int alto) {
-        ventana.setSize(ancho, alto);
-        ventana.setVisible(true);
+    public void setPintor(Pintor pintor) {
+        this.pintor = pintor;
+        repaint(); // Forzamos la repintura del panel cuando se cambia el pintor
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        // Verificar si hay un pintor asignado y pintar si es así
+        if (pintor != null) {
+            pintor.pintar(g, getWidth(), getHeight());
+        }
     }
 }

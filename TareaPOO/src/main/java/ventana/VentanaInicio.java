@@ -1,4 +1,8 @@
+// VentanaInicio.java
 package ventana;
+
+import pintor.Pintor;
+import pintor.PintorFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,7 +36,11 @@ public class VentanaInicio {
                     int alto = Integer.parseInt(altoTextField.getText());
 
                     VentanaPrincipal ventanaPrincipal = VentanaPrincipal.obtenerInstancia();
-                    ventanaPrincipal.mostrarVentana(ancho, alto);
+                    ventanaPrincipal.setSize(ancho, alto);
+
+                    // Asignar un pintor a la ventana principal (por ejemplo, rayas)
+                    Pintor pintorRayas = PintorFactory.crearPintor("rayas");
+                    ventanaPrincipal.setPintor(pintorRayas);
 
                     // Crear y mostrar la ventana de control después de crear la ventana principal
                     VentanaControl ventanaControl = new VentanaControl();
@@ -46,4 +54,3 @@ public class VentanaInicio {
         frame.setVisible(true);
     }
 }
-

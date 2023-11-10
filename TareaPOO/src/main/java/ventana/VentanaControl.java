@@ -11,14 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VentanaControl extends JFrame {
+    private JCheckBox colorCheckBox;
+    private JCheckBox strokeWidthCheckBox;
     private JComboBox<String> pintorComboBox;
     private JButton agregarPintorButton;
     private JTextArea infoTextArea;
-    private JLabel labelIteraciones;
-    private JComboBox<Integer> iteracionesComboBox;
     private JButton guardarButton;
-    private JCheckBox colorCheckBox;
-    private JCheckBox strokeWidthCheckBox;
     private volatile boolean stopThread;
     private int selectedIteraciones;
     private List<Pintor> pintoresCreados;
@@ -30,6 +28,9 @@ public class VentanaControl extends JFrame {
         setSize(400, 300);
         setLayout(new FlowLayout());
 
+        colorCheckBox = new JCheckBox("Colores Aleatorios");
+        strokeWidthCheckBox = new JCheckBox("Grosor Aleatorio");
+
         JLabel labelPintor = new JLabel("Seleccione el tipo de pintor:");
         String[] pintores = {"Rayas", "Círculos", "Figuras"};
         pintorComboBox = new JComboBox<>(pintores);
@@ -39,25 +40,19 @@ public class VentanaControl extends JFrame {
         infoTextArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(infoTextArea);
 
-        labelIteraciones = new JLabel("Cantidad de Iteraciones:");
-        Integer[] iteraciones = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-        iteracionesComboBox = new JComboBox<>(iteraciones);
         guardarButton = new JButton("Guardar");
-        colorCheckBox = new JCheckBox("Colores Aleatorios");
-        strokeWidthCheckBox = new JCheckBox("Grosor Aleatorio");
 
+        pintoresCreados = new ArrayList<>();
+        ventanaPrincipal = VentanaPrincipal.obtenerInstancia();
+
+        // Cambia el orden en el que se agregan los componentes al contenedor
+        add(colorCheckBox);
+        add(strokeWidthCheckBox);
         add(labelPintor);
         add(pintorComboBox);
         add(agregarPintorButton);
         add(scrollPane);
-        add(labelIteraciones);
-        add(iteracionesComboBox);
-        add(colorCheckBox);
-        add(strokeWidthCheckBox);
         add(guardarButton);
-
-        pintoresCreados = new ArrayList<>();
-        ventanaPrincipal = VentanaPrincipal.obtenerInstancia();
 
         agregarPintorButton.addActionListener(new ActionListener() {
             @Override
@@ -82,7 +77,8 @@ public class VentanaControl extends JFrame {
         guardarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectedIteraciones = (int) iteracionesComboBox.getSelectedItem();
+                // Establecer la cantidad de iteraciones directamente a 1
+                selectedIteraciones = 1;
 
                 // Iniciar un hilo para mostrar el mensaje cada 3 segundos
                 new Thread(() -> {
@@ -137,7 +133,6 @@ public class VentanaControl extends JFrame {
 
         return nuevoPintor;
     }
-
 
     private void updateInfoTextArea() {
         StringBuilder infoText = new StringBuilder("Información sobre pintores creados:\n");

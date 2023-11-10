@@ -11,11 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VentanaControl extends JFrame {
+    // Componentes de la interfaz de usuario
     private JComboBox<String> pintorComboBox;
     private JButton agregarPintorButton;
     private JTextArea infoTextArea;
     private JButton guardarButton;
-    private JComboBox<Integer> cantidadPintoresComboBox; // Nuevo JComboBox
+    private JComboBox<Integer> cantidadPintoresComboBox;
     private volatile boolean stopThread;
     private int selectedIteraciones;
     private List<Pintor> pintoresCreados;
@@ -29,11 +30,13 @@ public class VentanaControl extends JFrame {
     private boolean lastUseRandomStrokeWidth;
 
     public VentanaControl() {
+        // Configuración básica de la ventana
         setTitle("Ventana Control");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(600, 400);
         setLayout(new BorderLayout());
 
+        // Configuración de componentes de la interfaz de usuario
         JLabel labelPintor = new JLabel("Seleccione el tipo de pintor:");
         String[] pintores = {"Rayas", "Círculos", "Figuras"};
         pintorComboBox = new JComboBox<>(pintores);
@@ -81,31 +84,33 @@ public class VentanaControl extends JFrame {
         // Inicializar las variables de información acumulada
         accumulatedInfo = new StringBuilder();
 
+        // Acciones del botón "Agregar Pintor"
         agregarPintorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Obtener el tipo de pintor seleccionado
                 String selectedPintor = (String) pintorComboBox.getSelectedItem();
 
-                // Retrieve the user's choices
+                // Obtener las elecciones del usuario
                 boolean useRandomColors = colorCheckBox.isSelected();
                 boolean useRandomStrokeWidth = strokeWidthCheckBox.isSelected();
 
-                // Retrieve the selected quantity of painters
+                // Obtener la cantidad seleccionada de pintores
                 int selectedQuantity = (int) cantidadPintoresComboBox.getSelectedItem();
 
-                // Create the specified number of painters
+                // Crear la cantidad especificada de pintores
                 for (int i = 0; i < selectedQuantity; i++) {
-                    // Create the painter using the PintorFactory
+                    // Crear el pintor utilizando la fábrica de pintores
                     Pintor nuevoPintor = crearPintor(selectedPintor, useRandomColors, useRandomStrokeWidth);
 
-                    // Store information about the created painter in the list
+                    // Almacenar información sobre el pintor creado en la lista
                     pintoresCreados.add(nuevoPintor);
 
-                    // Save the last choices
+                    // Guardar las últimas elecciones
                     lastUseRandomColors = useRandomColors;
                     lastUseRandomStrokeWidth = useRandomStrokeWidth;
 
-                    // Update the text in the JTextArea with information about all created painters
+                    // Actualizar el texto en JTextArea con información sobre todos los pintores creados
                     updateInfoTextArea(nuevoPintor);
                 }
 
@@ -114,6 +119,7 @@ public class VentanaControl extends JFrame {
             }
         });
 
+        // Acciones del botón "Guardar"
         guardarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -147,6 +153,7 @@ public class VentanaControl extends JFrame {
             }
         });
 
+        // Detener el hilo al cerrar la ventana
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
                 stopThread = true;
@@ -156,6 +163,7 @@ public class VentanaControl extends JFrame {
         setVisible(true);
     }
 
+    // Método para crear un pintor con opciones específicas
     private Pintor crearPintor(String tipo, boolean useRandomColors, boolean useRandomStrokeWidth) {
         Pintor nuevoPintor;
         if (tipo.equalsIgnoreCase("Rayas")) {
@@ -174,6 +182,7 @@ public class VentanaControl extends JFrame {
         return nuevoPintor;
     }
 
+    // Método para actualizar la información en el JTextArea
     private void updateInfoTextArea(Pintor pintor) {
         // Agregar información sobre el pintor al acumulado
         accumulatedInfo.append("- ").append(pintor.getClass().getSimpleName());
@@ -198,15 +207,27 @@ public class VentanaControl extends JFrame {
         infoTextArea.setText(accumulatedInfo.toString());
     }
 
+    // Método para reiniciar los checkboxes a su estado inicial
     private void reiniciarCheckboxes(JCheckBox... checkboxes) {
         for (JCheckBox checkbox : checkboxes) {
             checkbox.setSelected(false);
         }
     }
 
+    // Método principal para ejecutar la aplicación
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new VentanaControl();
+            VentanaControl ventanaControl = new VentanaControl();
+
+            // Obtener las dimensiones de la pantalla
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+            // Definir la ubicación de la esquina superior derecha
+            int x = screenSize.width - ventanaControl.getWidth();
+            int y = 0;
+
+            // Establecer la ubicación de la ventana
+            ventanaControl.setLocation(x, y);
         });
     }
 }

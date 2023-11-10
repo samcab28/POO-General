@@ -15,6 +15,7 @@ public class VentanaControl extends JFrame {
     private JButton agregarPintorButton;
     private JTextArea infoTextArea;
     private JButton guardarButton;
+    private JComboBox<Integer> cantidadPintoresComboBox; // Nuevo JComboBox
     private volatile boolean stopThread;
     private int selectedIteraciones;
     private List<Pintor> pintoresCreados;
@@ -36,6 +37,10 @@ public class VentanaControl extends JFrame {
         JLabel labelPintor = new JLabel("Seleccione el tipo de pintor:");
         String[] pintores = {"Rayas", "Círculos", "Figuras"};
         pintorComboBox = new JComboBox<>(pintores);
+
+        // Nuevo JComboBox para seleccionar la cantidad de pintores
+        cantidadPintoresComboBox = new JComboBox<>(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        cantidadPintoresComboBox.setSelectedIndex(0); // Inicializar en 1
 
         agregarPintorButton = new JButton("Agregar Pintor");
         infoTextArea = new JTextArea(20, 50);
@@ -63,6 +68,10 @@ public class VentanaControl extends JFrame {
         topPanel.add(pintorComboBox);
         topPanel.add(agregarPintorButton);
 
+        // Agregar el nuevo JComboBox al panel superior
+        topPanel.add(new JLabel("Cantidad de Pintores:"));
+        topPanel.add(cantidadPintoresComboBox);
+
         add(topPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
         add(guardarButton, BorderLayout.SOUTH);
@@ -81,18 +90,24 @@ public class VentanaControl extends JFrame {
                 boolean useRandomColors = colorCheckBox.isSelected();
                 boolean useRandomStrokeWidth = strokeWidthCheckBox.isSelected();
 
-                // Create the painter using the PintorFactory
-                Pintor nuevoPintor = crearPintor(selectedPintor, useRandomColors, useRandomStrokeWidth);
+                // Retrieve the selected quantity of painters
+                int selectedQuantity = (int) cantidadPintoresComboBox.getSelectedItem();
 
-                // Store information about the created painter in the list
-                pintoresCreados.add(nuevoPintor);
+                // Create the specified number of painters
+                for (int i = 0; i < selectedQuantity; i++) {
+                    // Create the painter using the PintorFactory
+                    Pintor nuevoPintor = crearPintor(selectedPintor, useRandomColors, useRandomStrokeWidth);
 
-                // Save the last choices
-                lastUseRandomColors = useRandomColors;
-                lastUseRandomStrokeWidth = useRandomStrokeWidth;
+                    // Store information about the created painter in the list
+                    pintoresCreados.add(nuevoPintor);
 
-                // Update the text in the JTextArea with information about all created painters
-                updateInfoTextArea(nuevoPintor);
+                    // Save the last choices
+                    lastUseRandomColors = useRandomColors;
+                    lastUseRandomStrokeWidth = useRandomStrokeWidth;
+
+                    // Update the text in the JTextArea with information about all created painters
+                    updateInfoTextArea(nuevoPintor);
+                }
 
                 // Reiniciar los checkboxes
                 reiniciarCheckboxes(colorCheckBox, strokeWidthCheckBox);

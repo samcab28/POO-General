@@ -1,13 +1,10 @@
 // Main.java
 package main;
 
-import pintor.Pintor;
-import pintor.PintorFactory;
-import ventana.VentanaInicio;
-import ventana.VentanaPrincipal;
+import ventana.*;
 
 public class Main {
     public static void main(String[] args) {
-        VentanaInicio.main(args);
+        VentanaControl.main(args);
     }
 }

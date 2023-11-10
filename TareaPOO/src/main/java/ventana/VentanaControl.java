@@ -1,4 +1,3 @@
-// VentanaControl.java
 package ventana;
 
 import pintor.Pintor;
@@ -15,7 +14,12 @@ public class VentanaControl extends JFrame {
     private JComboBox<String> pintorComboBox;
     private JButton agregarPintorButton;
     private JTextArea infoTextArea;
-    private List<String> pintoresCreados;
+    private JLabel labelIteraciones;
+    private JComboBox<Integer> iteracionesComboBox;
+    private JButton guardarButton;
+    private volatile boolean stopThread;
+    private int selectedIteraciones;
+    private List<Pintor> pintoresCreados;
     private VentanaPrincipal ventanaPrincipal;
 
     public VentanaControl() {
@@ -33,10 +37,18 @@ public class VentanaControl extends JFrame {
         infoTextArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(infoTextArea);
 
+        labelIteraciones = new JLabel("Cantidad de Iteraciones:");
+        Integer[] iteraciones = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        iteracionesComboBox = new JComboBox<>(iteraciones);
+        guardarButton = new JButton("Guardar");
+
         add(labelPintor);
         add(pintorComboBox);
         add(agregarPintorButton);
         add(scrollPane);
+        add(labelIteraciones);
+        add(iteracionesComboBox);
+        add(guardarButton);
 
         pintoresCreados = new ArrayList<>();
         ventanaPrincipal = VentanaPrincipal.obtenerInstancia();
@@ -50,13 +62,46 @@ public class VentanaControl extends JFrame {
                 Pintor nuevoPintor = crearPintor(selectedPintor);
 
                 // Almacena la información del pintor creado en la lista
-                pintoresCreados.add(nuevoPintor.getClass().getSimpleName());
-
-                // Notificar a la VentanaPrincipal sobre el pintor agregado
-                ventanaPrincipal.agregarPintor(nuevoPintor);
+                pintoresCreados.add(nuevoPintor);
 
                 // Actualiza el texto en el JTextArea con la información de los pintores creados
                 updateInfoTextArea();
+            }
+        });
+
+        guardarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectedIteraciones = (int) iteracionesComboBox.getSelectedItem();
+
+                // Iniciar un hilo para mostrar el mensaje cada 3 segundos
+                new Thread(() -> {
+                    int iteracionActual = 0;
+                    while (iteracionActual < selectedIteraciones && !stopThread) {
+                        // Muestra el mensaje cada 3 segundos
+                        SwingUtilities.invokeLater(() -> {
+                            // Itera sobre los pintores creados y notifica a la VentanaPrincipal
+                            for (Pintor pintor : pintoresCreados) {
+                                ventanaPrincipal.agregarPintor(pintor);
+                                // Puedes agregar más acciones relacionadas con la interfaz de usuario aquí si es necesario
+                            }
+                        });
+
+                        try {
+                            Thread.sleep(3000); // Espera 3 segundos
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+
+                        iteracionActual++;
+                    }
+                }).start();
+            }
+        });
+
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                stopThread = true;
             }
         });
 
@@ -67,10 +112,8 @@ public class VentanaControl extends JFrame {
         // Verificar el tipo de pintor y pasar el tipo a la fábrica
         if (tipo.equalsIgnoreCase("Rayas")) {
             return PintorFactory.crearPintor("rayas");
-
         } else if (tipo.equalsIgnoreCase("Círculos")) {
             return PintorFactory.crearPintor("circulos");
-
         } else if (tipo.equalsIgnoreCase("Figuras")) {
             return PintorFactory.crearPintor("figuras");
         } else {
@@ -80,8 +123,8 @@ public class VentanaControl extends JFrame {
 
     private void updateInfoTextArea() {
         StringBuilder infoText = new StringBuilder("Información sobre pintores creados:\n");
-        for (String pintorInfo : pintoresCreados) {
-            infoText.append("- ").append(pintorInfo).append("\n");
+        for (Pintor pintor : pintoresCreados) {
+            infoText.append("- ").append(pintor.getClass().getSimpleName()).append("\n");
         }
         infoTextArea.setText(infoText.toString());
     }

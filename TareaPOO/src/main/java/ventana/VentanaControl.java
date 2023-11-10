@@ -17,6 +17,8 @@ public class VentanaControl extends JFrame {
     private JLabel labelIteraciones;
     private JComboBox<Integer> iteracionesComboBox;
     private JButton guardarButton;
+    private JCheckBox colorCheckBox;
+    private JCheckBox strokeWidthCheckBox;
     private volatile boolean stopThread;
     private int selectedIteraciones;
     private List<Pintor> pintoresCreados;
@@ -41,6 +43,8 @@ public class VentanaControl extends JFrame {
         Integer[] iteraciones = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         iteracionesComboBox = new JComboBox<>(iteraciones);
         guardarButton = new JButton("Guardar");
+        colorCheckBox = new JCheckBox("Colores Aleatorios");
+        strokeWidthCheckBox = new JCheckBox("Grosor Aleatorio");
 
         add(labelPintor);
         add(pintorComboBox);
@@ -48,6 +52,8 @@ public class VentanaControl extends JFrame {
         add(scrollPane);
         add(labelIteraciones);
         add(iteracionesComboBox);
+        add(colorCheckBox);
+        add(strokeWidthCheckBox);
         add(guardarButton);
 
         pintoresCreados = new ArrayList<>();
@@ -58,13 +64,17 @@ public class VentanaControl extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String selectedPintor = (String) pintorComboBox.getSelectedItem();
 
-                // Crear el pintor utilizando el PintorFactory
-                Pintor nuevoPintor = crearPintor(selectedPintor);
+                // Retrieve the user's choices
+                boolean useRandomColors = colorCheckBox.isSelected();
+                boolean useRandomStrokeWidth = strokeWidthCheckBox.isSelected();
 
-                // Almacena la información del pintor creado en la lista
+                // Create the painter using the PintorFactory
+                Pintor nuevoPintor = crearPintor(selectedPintor, useRandomColors, useRandomStrokeWidth);
+
+                // Store information about the created painter in the list
                 pintoresCreados.add(nuevoPintor);
 
-                // Actualiza el texto en el JTextArea con la información de los pintores creados
+                // Update the text in the JTextArea with information about the created painters
                 updateInfoTextArea();
             }
         });
@@ -108,18 +118,26 @@ public class VentanaControl extends JFrame {
         setVisible(true);
     }
 
-    private Pintor crearPintor(String tipo) {
-        // Verificar el tipo de pintor y pasar el tipo a la fábrica
+    private Pintor crearPintor(String tipo, boolean useRandomColors, boolean useRandomStrokeWidth) {
+        // Verify the type of painter and pass the type to the factory
+        Pintor nuevoPintor;
         if (tipo.equalsIgnoreCase("Rayas")) {
-            return PintorFactory.crearPintor("rayas");
+            nuevoPintor = PintorFactory.crearPintor("rayas");
         } else if (tipo.equalsIgnoreCase("Círculos")) {
-            return PintorFactory.crearPintor("circulos");
+            nuevoPintor = PintorFactory.crearPintor("circulos");
         } else if (tipo.equalsIgnoreCase("Figuras")) {
-            return PintorFactory.crearPintor("figuras");
+            nuevoPintor = PintorFactory.crearPintor("figuras");
         } else {
             throw new IllegalArgumentException("Tipo de pintor no válido.");
         }
+
+        // Customize the painter based on user choices
+        nuevoPintor.setUseRandomColors(useRandomColors);
+        nuevoPintor.setUseRandomStrokeWidth(useRandomStrokeWidth);
+
+        return nuevoPintor;
     }
+
 
     private void updateInfoTextArea() {
         StringBuilder infoText = new StringBuilder("Información sobre pintores creados:\n");

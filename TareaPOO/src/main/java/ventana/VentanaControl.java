@@ -1,4 +1,8 @@
+// VentanaControl.java
 package ventana;
+
+import pintor.Pintor;
+import pintor.PintorFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,10 +13,10 @@ import java.util.List;
 
 public class VentanaControl extends JFrame {
     private JComboBox<String> pintorComboBox;
-    private JComboBox<Integer> cantidadColoresComboBox;
-    private JButton guardarButton;
+    private JButton agregarPintorButton;
     private JTextArea infoTextArea;
     private List<String> pintoresCreados;
+    private VentanaPrincipal ventanaPrincipal;
 
     public VentanaControl() {
         setTitle("Ventana Control");
@@ -21,47 +25,56 @@ public class VentanaControl extends JFrame {
         setLayout(new FlowLayout());
 
         JLabel labelPintor = new JLabel("Seleccione el tipo de pintor:");
-        String[] pintores = {"Pintor de líneas", "Pintor de círculos", "Pintor de polígonos"};
+        String[] pintores = {"Rayas", "Círculos", "Figuras"};
         pintorComboBox = new JComboBox<>(pintores);
 
-        JLabel labelColores = new JLabel("Seleccione la cantidad de colores (1-5):");
-        Integer[] cantidadesColores = {1, 2, 3, 4, 5};
-        cantidadColoresComboBox = new JComboBox<>(cantidadesColores);
-
-        guardarButton = new JButton("Guardar");
-        infoTextArea = new JTextArea(10, 30); // 10 líneas y 30 columnas
-        infoTextArea.setEditable(false); // Evita que el usuario edite el texto
+        agregarPintorButton = new JButton("Agregar Pintor");
+        infoTextArea = new JTextArea(10, 30);
+        infoTextArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(infoTextArea);
 
         add(labelPintor);
         add(pintorComboBox);
-        add(labelColores);
-        add(cantidadColoresComboBox);
-        add(guardarButton);
+        add(agregarPintorButton);
         add(scrollPane);
 
         pintoresCreados = new ArrayList<>();
+        ventanaPrincipal = VentanaPrincipal.obtenerInstancia();
 
-        guardarButton.addActionListener(new ActionListener() {
+        agregarPintorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedPintor = (String) pintorComboBox.getSelectedItem();
-                int selectedColores = (int) cantidadColoresComboBox.getSelectedItem();
+
+                // Crear el pintor utilizando el PintorFactory
+                Pintor nuevoPintor = crearPintor(selectedPintor);
 
                 // Almacena la información del pintor creado en la lista
-                String pintorCreado = selectedPintor + " - Colores: " + selectedColores;
+                String pintorCreado = nuevoPintor.getClass().getSimpleName();
                 pintoresCreados.add(pintorCreado);
+
+                // Notificar a la VentanaPrincipal sobre el pintor agregado
+                notificarPintorAgregado(pintorCreado);
 
                 // Actualiza el texto en el JTextArea con la información de los pintores creados
                 updateInfoTextArea();
-
-                // Restablece los combos de selección
-                pintorComboBox.setSelectedIndex(0);
-                cantidadColoresComboBox.setSelectedIndex(0);
             }
         });
 
         setVisible(true);
+    }
+
+    private Pintor crearPintor(String tipo) {
+        // Verificar el tipo de pintor y pasar el tipo a la fábrica
+        if (tipo.equalsIgnoreCase("Rayas")) {
+            return PintorFactory.crearPintor("rayas");
+        } else if (tipo.equalsIgnoreCase("Círculos")) {
+            return PintorFactory.crearPintor("circulos");
+        } else if (tipo.equalsIgnoreCase("Figuras")) {
+            return PintorFactory.crearPintor("figuras");
+        } else {
+            throw new IllegalArgumentException("Tipo de pintor no válido.");
+        }
     }
 
     private void updateInfoTextArea() {
@@ -71,5 +84,14 @@ public class VentanaControl extends JFrame {
         }
         infoTextArea.setText(infoText.toString());
     }
-}
 
+    private void notificarPintorAgregado(String infoPintor) {
+        ventanaPrincipal.pintorAgregado(infoPintor);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new VentanaControl();
+        });
+    }
+}

@@ -23,7 +23,7 @@ public class VentanaPrincipal extends JPanel implements ObservadorPintor {
         ventana.add(this); // Agregamos la instancia actual como JPanel
 
         // Establecemos un tamaño inicial para la ventana principal
-        ventana.setSize(500, 500);
+        ventana.setSize(600, 600);
 
         pintores = new ArrayList<>(); // Inicializamos la lista de pintores
 

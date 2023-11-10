@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VentanaControl extends JFrame {
-    private JCheckBox colorCheckBox;
-    private JCheckBox strokeWidthCheckBox;
     private JComboBox<String> pintorComboBox;
     private JButton agregarPintorButton;
     private JTextArea infoTextArea;
@@ -21,22 +19,26 @@ public class VentanaControl extends JFrame {
     private int selectedIteraciones;
     private List<Pintor> pintoresCreados;
     private VentanaPrincipal ventanaPrincipal;
+    private JCheckBox colorCheckBox;
+    private JCheckBox strokeWidthCheckBox;
+
+    // Variables para almacenar información acumulada
+    private StringBuilder accumulatedInfo;
+    private boolean lastUseRandomColors;
+    private boolean lastUseRandomStrokeWidth;
 
     public VentanaControl() {
         setTitle("Ventana Control");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(400, 300);
-        setLayout(new FlowLayout());
-
-        colorCheckBox = new JCheckBox("Colores Aleatorios");
-        strokeWidthCheckBox = new JCheckBox("Grosor Aleatorio");
+        setSize(600, 400);
+        setLayout(new BorderLayout());
 
         JLabel labelPintor = new JLabel("Seleccione el tipo de pintor:");
         String[] pintores = {"Rayas", "Círculos", "Figuras"};
         pintorComboBox = new JComboBox<>(pintores);
 
         agregarPintorButton = new JButton("Agregar Pintor");
-        infoTextArea = new JTextArea(10, 30);
+        infoTextArea = new JTextArea(20, 50);
         infoTextArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(infoTextArea);
 
@@ -45,14 +47,30 @@ public class VentanaControl extends JFrame {
         pintoresCreados = new ArrayList<>();
         ventanaPrincipal = VentanaPrincipal.obtenerInstancia();
 
-        // Cambia el orden en el que se agregan los componentes al contenedor
-        add(colorCheckBox);
-        add(strokeWidthCheckBox);
-        add(labelPintor);
-        add(pintorComboBox);
-        add(agregarPintorButton);
-        add(scrollPane);
-        add(guardarButton);
+        // Paneles para checkboxes
+        JPanel checkboxesPanel = new JPanel();
+        checkboxesPanel.setLayout(new BoxLayout(checkboxesPanel, BoxLayout.Y_AXIS));
+
+        JPanel staticCheckboxesPanel = new JPanel();
+        staticCheckboxesPanel.setLayout(new BoxLayout(staticCheckboxesPanel, BoxLayout.Y_AXIS));
+        colorCheckBox = new JCheckBox("Colores Aleatorios");
+        strokeWidthCheckBox = new JCheckBox("Grosor Aleatorio");
+        staticCheckboxesPanel.add(colorCheckBox);
+        staticCheckboxesPanel.add(strokeWidthCheckBox);
+
+        JPanel topPanel = new JPanel(new FlowLayout());
+        topPanel.add(labelPintor);
+        topPanel.add(pintorComboBox);
+        topPanel.add(agregarPintorButton);
+
+        add(topPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+        add(guardarButton, BorderLayout.SOUTH);
+        add(staticCheckboxesPanel, BorderLayout.WEST);
+        add(checkboxesPanel, BorderLayout.EAST);
+
+        // Inicializar las variables de información acumulada
+        accumulatedInfo = new StringBuilder();
 
         agregarPintorButton.addActionListener(new ActionListener() {
             @Override
@@ -69,15 +87,21 @@ public class VentanaControl extends JFrame {
                 // Store information about the created painter in the list
                 pintoresCreados.add(nuevoPintor);
 
-                // Update the text in the JTextArea with information about the created painters
-                updateInfoTextArea();
+                // Save the last choices
+                lastUseRandomColors = useRandomColors;
+                lastUseRandomStrokeWidth = useRandomStrokeWidth;
+
+                // Update the text in the JTextArea with information about all created painters
+                updateInfoTextArea(nuevoPintor);
+
+                // Reiniciar los checkboxes
+                reiniciarCheckboxes(colorCheckBox, strokeWidthCheckBox);
             }
         });
 
         guardarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Establecer la cantidad de iteraciones directamente a 1
                 selectedIteraciones = 1;
 
                 // Iniciar un hilo para mostrar el mensaje cada 3 segundos
@@ -86,9 +110,12 @@ public class VentanaControl extends JFrame {
                     while (iteracionActual < selectedIteraciones && !stopThread) {
                         // Muestra el mensaje cada 3 segundos
                         SwingUtilities.invokeLater(() -> {
+                            // Muestra la información acumulada
+                            infoTextArea.setText(accumulatedInfo.toString());
+
                             // Itera sobre los pintores creados y notifica a la VentanaPrincipal
-                            for (Pintor pintor : pintoresCreados) {
-                                ventanaPrincipal.agregarPintor(pintor);
+                            for (int i = 0; i < pintoresCreados.size(); i++) {
+                                ventanaPrincipal.agregarPintor(pintoresCreados.get(i));
                                 // Puedes agregar más acciones relacionadas con la interfaz de usuario aquí si es necesario
                             }
                         });
@@ -115,7 +142,6 @@ public class VentanaControl extends JFrame {
     }
 
     private Pintor crearPintor(String tipo, boolean useRandomColors, boolean useRandomStrokeWidth) {
-        // Verify the type of painter and pass the type to the factory
         Pintor nuevoPintor;
         if (tipo.equalsIgnoreCase("Rayas")) {
             nuevoPintor = PintorFactory.crearPintor("rayas");
@@ -127,19 +153,40 @@ public class VentanaControl extends JFrame {
             throw new IllegalArgumentException("Tipo de pintor no válido.");
         }
 
-        // Customize the painter based on user choices
         nuevoPintor.setUseRandomColors(useRandomColors);
         nuevoPintor.setUseRandomStrokeWidth(useRandomStrokeWidth);
 
         return nuevoPintor;
     }
 
-    private void updateInfoTextArea() {
-        StringBuilder infoText = new StringBuilder("Información sobre pintores creados:\n");
-        for (Pintor pintor : pintoresCreados) {
-            infoText.append("- ").append(pintor.getClass().getSimpleName()).append("\n");
+    private void updateInfoTextArea(Pintor pintor) {
+        // Agregar información sobre el pintor al acumulado
+        accumulatedInfo.append("- ").append(pintor.getClass().getSimpleName());
+
+        if (lastUseRandomColors || lastUseRandomStrokeWidth) {
+            accumulatedInfo.append(" (");
+            if (lastUseRandomColors) {
+                accumulatedInfo.append("Colores Aleatorios");
+                if (lastUseRandomStrokeWidth) {
+                    accumulatedInfo.append(" y ");
+                }
+            }
+            if (lastUseRandomStrokeWidth) {
+                accumulatedInfo.append("Grosor Aleatorio");
+            }
+            accumulatedInfo.append(")");
         }
-        infoTextArea.setText(infoText.toString());
+
+        accumulatedInfo.append("\n");
+
+        // Actualizar el texto en el JTextArea con la información acumulada
+        infoTextArea.setText(accumulatedInfo.toString());
+    }
+
+    private void reiniciarCheckboxes(JCheckBox... checkboxes) {
+        for (JCheckBox checkbox : checkboxes) {
+            checkbox.setSelected(false);
+        }
     }
 
     public static void main(String[] args) {

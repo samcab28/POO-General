@@ -1,6 +1,8 @@
-// ObservadorPintores.java
+// ObservadorPintor.java
 package ventana;
 
+import pintor.Pintor;
+
 public interface ObservadorPintor {
-    void pintorAgregado(String infoPintor);
+    void pintorAgregado(Pintor nuevoPintor);
 }

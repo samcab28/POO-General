@@ -40,17 +40,6 @@ public class VentanaInicio {
                     VentanaPrincipal ventanaPrincipal = VentanaPrincipal.obtenerInstancia();
                     ventanaPrincipal.setSize(ancho, alto);
 
-                    // Crear pintores individuales
-                    Pintor pintorRayas = PintorFactory.crearPintor("rayas");
-                    Pintor pintorCirculos = PintorFactory.crearPintor("circulos");
-                    Pintor pintorFormas = PintorFactory.crearPintor("figuras");
-
-                    // Crear un pintor compuesto que contiene todos los pintores individuales
-                    Pintor pintorCompuesto = new PintorCompuesto(pintorRayas, pintorCirculos, pintorFormas);
-
-                    // Asignar el pintor compuesto a la ventana principal
-                    ventanaPrincipal.setPintor(pintorCompuesto);
-
                     // Crear y mostrar la ventana de control después de crear la ventana principal
                     VentanaControl ventanaControl = new VentanaControl();
                     ventanaControl.setVisible(true);

@@ -50,11 +50,10 @@ public class VentanaControl extends JFrame {
                 Pintor nuevoPintor = crearPintor(selectedPintor);
 
                 // Almacena la información del pintor creado en la lista
-                String pintorCreado = nuevoPintor.getClass().getSimpleName();
-                pintoresCreados.add(pintorCreado);
+                pintoresCreados.add(nuevoPintor.getClass().getSimpleName());
 
                 // Notificar a la VentanaPrincipal sobre el pintor agregado
-                notificarPintorAgregado(pintorCreado);
+                ventanaPrincipal.agregarPintor(nuevoPintor);
 
                 // Actualiza el texto en el JTextArea con la información de los pintores creados
                 updateInfoTextArea();
@@ -68,8 +67,10 @@ public class VentanaControl extends JFrame {
         // Verificar el tipo de pintor y pasar el tipo a la fábrica
         if (tipo.equalsIgnoreCase("Rayas")) {
             return PintorFactory.crearPintor("rayas");
+
         } else if (tipo.equalsIgnoreCase("Círculos")) {
             return PintorFactory.crearPintor("circulos");
+
         } else if (tipo.equalsIgnoreCase("Figuras")) {
             return PintorFactory.crearPintor("figuras");
         } else {
@@ -83,10 +84,6 @@ public class VentanaControl extends JFrame {
             infoText.append("- ").append(pintorInfo).append("\n");
         }
         infoTextArea.setText(infoText.toString());
-    }
-
-    private void notificarPintorAgregado(String infoPintor) {
-        ventanaPrincipal.pintorAgregado(infoPintor);
     }
 
     public static void main(String[] args) {
